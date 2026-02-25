@@ -42,4 +42,19 @@ RSpec.describe Armature::Blueprint do
       expect(klass.parent_key).to eq :team_id
     end
   end
+
+  describe "default parent" do
+    let(:klass) { Class.new(Armature::Blueprint) }
+    let(:foundry) { double("foundry") }
+    let(:instance) { klass.new(foundry) }
+
+    it "returns nil when no parent is declared" do
+      expect(instance.parent).to be_nil
+    end
+
+    it "same_parent? returns true when no parent is declared" do
+      record = double("record")
+      expect(instance.same_parent?(record)).to be true
+    end
+  end
 end

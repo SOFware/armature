@@ -122,6 +122,32 @@ class TaskBlueprint < Armature::Blueprint
   end
 end
 
+# A blueprint that never calls `parent` at all (no parent declaration)
+class ParentlessBlueprint < Armature::Blueprint
+  handles :parentless_team
+  factory :team
+  collection :teams
+  permitted_attrs %i[name]
+
+  def parentless_team(name, attrs = {})
+    @attrs = attrs.merge(name: name)
+    object = find(name) || create_object
+    object
+  ensure
+    reset_attrs
+  end
+
+  private
+
+  def create_object
+    create(:team, attrs).tap { |record| collection << record }
+  end
+
+  def attrs
+    permitted_attrs @attrs
+  end
+end
+
 # --- Test foundry ---
 
 class TestFoundry < Armature::Base
@@ -305,6 +331,24 @@ RSpec.describe Armature::Base do
       expect(User.find_by(name: "Lead")).to be_present
       expect(Project.find_by(name: "Main")).to be_present
       expect(Task.find_by(name: "Setup")).to be_present
+    end
+  end
+
+  describe "parentless blueprint" do
+    let(:parentless_foundry_class) do
+      Class.new(Armature::Base) do
+        blueprint ParentlessBlueprint
+      end
+    end
+
+    it "can use find without error when no parent is declared" do
+      foundry = parentless_foundry_class.new do
+        parentless_team "Alpha"
+        parentless_team "Alpha" # triggers find path
+      end
+
+      expect(Team.where(name: "Alpha").count).to eq 1
+      expect(foundry.teams_collection.size).to eq 1
     end
   end
 end

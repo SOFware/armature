@@ -97,4 +97,27 @@ RSpec.describe Armature::Snapshot::Store do
       expect(cache_dir.join(".fingerprint")).to exist
     end
   end
+
+  describe "source_paths invalidation" do
+    let(:source_dir) { Dir.mktmpdir("armature_source") }
+    let(:source_file) { File.join(source_dir, "foundry.rb") }
+
+    after { FileUtils.rm_rf(source_dir) }
+
+    it "invalidates cache when source file content changes" do
+      File.write(source_file, "class MyFoundry; end")
+
+      store = described_class.new(:test_preset, adapter: adapter,
+        storage_path: storage_path, source_paths: [source_file])
+      create(:team, name: "Cached")
+      store.capture
+      expect(store).to be_cached
+
+      File.write(source_file, "class MyFoundry; def changed; end; end")
+
+      fresh_store = described_class.new(:test_preset, adapter: adapter,
+        storage_path: storage_path, source_paths: [source_file])
+      expect(fresh_store).not_to be_cached
+    end
+  end
 end

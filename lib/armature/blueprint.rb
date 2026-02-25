@@ -158,6 +158,10 @@ module Armature
       nil
     end
 
+    def parent
+      nil
+    end
+
     # Saves current state, yields, then restores state.
     # Use this when entering a nested block to scope context.
     def update_state_for_block(object, &block)

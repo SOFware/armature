@@ -10,7 +10,7 @@ require_relative "snapshot/store"
 module Armature
   module Snapshot
     class << self
-      attr_writer :storage_path, :connection, :enabled
+      attr_writer :storage_path, :connection, :enabled, :source_paths
 
       def storage_path
         @storage_path || "tmp/armature"
@@ -18,6 +18,10 @@ module Armature
 
       def connection
         @connection || ActiveRecord::Base.connection
+      end
+
+      def source_paths
+        @source_paths || []
       end
 
       def enabled?
@@ -31,6 +35,7 @@ module Armature
 
       def reset!
         @adapter = nil
+        @source_paths = nil
       end
     end
   end

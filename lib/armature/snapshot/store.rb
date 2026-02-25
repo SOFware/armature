@@ -6,11 +6,16 @@ require "pathname"
 module Armature
   module Snapshot
     class Store
-      def initialize(preset_name, adapter: Snapshot.adapter, storage_path: Snapshot.storage_path)
+      def initialize(preset_name, adapter: Snapshot.adapter,
+        storage_path: Snapshot.storage_path,
+        source_paths: Snapshot.source_paths)
         @preset_name = preset_name.to_s
         @adapter = adapter
         @storage_path = storage_path
-        @fingerprint = Fingerprint.new(adapter.instance_variable_get(:@connection))
+        @fingerprint = Fingerprint.new(
+          adapter.instance_variable_get(:@connection),
+          source_paths: source_paths
+        )
       end
 
       def cached?

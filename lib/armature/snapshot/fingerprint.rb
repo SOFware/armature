@@ -3,15 +3,26 @@
 module Armature
   module Snapshot
     class Fingerprint
-      def initialize(connection)
+      def initialize(connection, source_paths: [])
         @connection = connection
+        @source_paths = Array(source_paths)
       end
 
       def current
-        result = @connection.select_value(
+        digest = Digest::MD5.new
+        digest.update(schema_version)
+        @source_paths.sort.each do |path|
+          digest.update(File.read(path)) if File.exist?(path)
+        end
+        digest.hexdigest
+      end
+
+      private
+
+      def schema_version
+        @connection.select_value(
           "SELECT MAX(version) FROM schema_migrations"
-        )
-        Digest::MD5.hexdigest(result.to_s)
+        ).to_s
       end
     end
   end
