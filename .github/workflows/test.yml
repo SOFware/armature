@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["3.3"]
+        version: ["4.0"]
     env:
       NOTIFY_SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       NOTIFY_SLACK_NOTIFY_CHANNEL: "oss-notices"
@@ -29,7 +29,7 @@ jobs:
       NOTIFY_TEST_RUN_ID: "${{ github.run_id }}"
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.version }}
@@ -48,9 +48,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["3.3"]
+        version: ["4.0"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.version }}
