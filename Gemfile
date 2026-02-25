@@ -14,4 +14,6 @@ gem "simplecov"
 # Release management
 gem "reissue"
 
-gem "minitest"
+gem "rspec"
+gem "activerecord"
+gem "sqlite3"

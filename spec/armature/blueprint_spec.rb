@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+RSpec.describe Armature::Blueprint do
+  describe "class-level DSL" do
+    it "registers handled methods" do
+      klass = Class.new(Armature::Blueprint) do
+        handles :foo, :bar
+      end
+
+      expect(klass.handled_methods).to eq [:foo, :bar]
+    end
+
+    it "infers factory name from class name" do
+      # Create a named class to test inference
+      stub_const("UserBlueprint", Class.new(Armature::Blueprint))
+      expect(UserBlueprint.factory_name).to eq :user
+    end
+
+    it "allows explicit factory name" do
+      klass = Class.new(Armature::Blueprint) do
+        factory :special_user
+      end
+
+      expect(klass.factory_name).to eq :special_user
+    end
+
+    it "stores collection name" do
+      klass = Class.new(Armature::Blueprint) do
+        collection :users
+      end
+
+      expect(klass.collection_name).to eq :users
+    end
+
+    it "stores parent key" do
+      klass = Class.new(Armature::Blueprint) do
+        parent_key :team_id
+      end
+
+      expect(klass.parent_key).to eq :team_id
+    end
+  end
+end

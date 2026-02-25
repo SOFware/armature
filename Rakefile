@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require "bundler/gem_tasks"
-require "minitest/test_task"
+require "rspec/core/rake_task"
 
-Minitest::TestTask.create
+RSpec::Core::RakeTask.new(:spec)
 
 require "standard/rake"
 
-task default: %i[test standard]
+task default: %i[spec standard]
 
 require "reissue/gem"
 
 Reissue::Task.create :reissue do |task|
-  task.version_file = "lib/GEM_NAME/version.rb"
+  task.version_file = "lib/armature/version.rb"
+  task.fragment = :git
 end
