@@ -236,7 +236,7 @@ MIT
 
 ## Development
 
-After checking out the repo, run `bundle install` to install dependencies. Then, run `bundle exec rake` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bundle install` to install dependencies. Then, run `bundle exec rake` to run the tests.
 
 To install this gem onto your local machine, run bundle exec rake install.
 
