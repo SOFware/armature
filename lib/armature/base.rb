@@ -28,6 +28,8 @@ module Armature
     include FactoryBot::Syntax::Methods
 
     class << self
+      attr_accessor :_active_similarity_recorder
+
       # Register a blueprint class with this foundry.
       def blueprint(klass)
         blueprint_registry[klass] = klass.handled_methods
@@ -75,21 +77,43 @@ module Armature
       #
       def preset(name, &block)
         define_singleton_method(name) do
-          if defined?(Armature::Snapshot) && Armature::Snapshot.enabled?
-            store = Armature::Snapshot::Store.new(name)
+          with_similarity_recording(name, Similarity.enabled?) do
+            if defined?(Armature::Snapshot) && Armature::Snapshot.enabled?
+              store = Armature::Snapshot::Store.new(name)
 
-            if store.cached?
-              store.restore
-              return new # hollow — no block, data already in DB
+              if store.cached?
+                store.restore
+                next new # hollow — no block, data already in DB
+              end
+
+              store.record_empty_tables
+              foundry = new(&block)
+              store.capture
+              foundry
+            else
+              new(&block)
             end
-
-            store.record_empty_tables
-            foundry = new(&block)
-            store.capture
-            foundry
-          else
-            new(&block)
           end
+        end
+      end
+
+      def with_similarity_recording(preset_name, recording)
+        if recording
+          self._active_similarity_recorder = Similarity::Recorder.new
+          foundry = yield
+          tree = _active_similarity_recorder.normalized_tree
+          self._active_similarity_recorder = nil
+
+          key = "#{name}.#{preset_name}"
+          warnings = Similarity::Comparator.compare(key, tree, Similarity.registry)
+          warnings.each do |w|
+            next unless Similarity.warned_pairs.add?(w[:pair])
+            warn w[:message]
+          end
+          Similarity.registry[key] = tree
+          foundry
+        else
+          yield
         end
       end
 
@@ -102,6 +126,7 @@ module Armature
     end
 
     def initialize(&block)
+      @_similarity_recorder = self.class._active_similarity_recorder
       instantiate_blueprints
       initialize_collections
       @current = OpenStruct.new(resource: self)

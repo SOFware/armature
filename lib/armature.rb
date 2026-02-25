@@ -3,6 +3,7 @@
 require "factory_bot"
 require_relative "armature/version"
 require_relative "armature/blueprint"
+require_relative "armature/similarity"
 require_relative "armature/base"
 
 module Armature

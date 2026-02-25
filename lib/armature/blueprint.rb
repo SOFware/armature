@@ -138,9 +138,32 @@ module Armature
       end
     end
 
+    def self.new(...)
+      instance = super
+      foundry = instance.foundry
+      recorder = foundry&.instance_variable_get(:@_similarity_recorder)
+      instance._wrap_for_similarity_recording!(recorder) if recorder
+      instance
+    end
+
     def initialize(foundry)
       @foundry = foundry
       @attrs = {}
+    end
+
+    def _wrap_for_similarity_recording!(recorder)
+      methods_to_wrap = self.class.public_instance_methods(false).select do |m|
+        self.class.instance_method(m).parameters.any? { |type, _| type == :block }
+      end
+
+      methods_to_wrap.each do |method_name|
+        original = method(method_name)
+        define_singleton_method(method_name) do |*args, **kwargs, &block|
+          recorder.record(method_name.to_s, has_block: !block.nil?) do
+            original.call(*args, **kwargs, &block)
+          end
+        end
+      end
     end
 
     delegate :current=, :current, :update_current, :execute_and_restore_state,
