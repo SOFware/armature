@@ -11,11 +11,13 @@ Gem::Specification.new do |spec|
   spec.summary = "Declarative trees of related data using factory_bot"
   spec.description = "Compose factory_bot factories into armatures that build complex trees of related records with a declarative DSL."
   spec.homepage = "https://github.com/SOFware/armature"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata = {
-    "allowed_push_host" => "https://rubygems.pkg.github.com/sofware",
-    "github_repo" => "ssh://github.com/SOFware/armature.git",
+    "allowed_push_host" => "https://rubygems.org",
+    "homepage_uri" => spec.homepage,
+    "source_code_uri" => spec.homepage,
     "changelog_uri" => "https://github.com/SOFware/armature/blob/main/CHANGELOG.md"
   }
 
@@ -25,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "factory_bot", ">= 6.0"
+  spec.add_dependency "ostruct"
 end
