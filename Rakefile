@@ -12,6 +12,6 @@ task default: %i[spec standard]
 require "reissue/gem"
 
 Reissue::Task.create :reissue do |task|
-  task.version_file = "lib/armature/version.rb"
+  task.version_file = "lib/foundries/version.rb"
   task.fragment = :git
 end

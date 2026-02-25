@@ -1,11 +1,11 @@
-# Armature
+# Foundries
 
 Declarative trees of related records using factory_bot.
 
-Armature composes factory_bot factories into **blueprints** that know how to create, find, and relate records. You register blueprints with a **base** class, then build entire object graphs with a nested DSL:
+Foundries composes factory_bot factories into **blueprints** that know how to create, find, and relate records. You register blueprints with a **base** class, then build entire object graphs with a nested DSL:
 
 ```ruby
-TestArmature.new do
+TestFoundry.new do
   team "Engineering" do
     user "Alice"
     admin "Bob"
@@ -23,7 +23,7 @@ Each method call creates a record (or finds an existing one), and nesting establ
 ## Installation
 
 ```ruby
-gem "armature"
+gem "foundries"
 ```
 
 ## Usage
@@ -33,7 +33,7 @@ gem "armature"
 A blueprint wraps a single factory_bot factory and declares how it participates in the tree:
 
 ```ruby
-class TeamBlueprint < Armature::Blueprint
+class TeamBlueprint < Foundries::Blueprint
   handles :team
   factory :team
   collection :teams
@@ -65,7 +65,7 @@ end
 
 | Method | Purpose |
 |--------|---------|
-| `handles :method_name` | Methods this blueprint exposes on the armature |
+| `handles :method_name` | Methods this blueprint exposes on the foundry |
 | `factory :name` | Which factory_bot factory to use (inferred from class name if omitted) |
 | `collection :name` | Collection name for tracking created records |
 | `parent :name` | How to find the parent record (`:none`, `:self`, or a method on `current`) |
@@ -82,7 +82,7 @@ Blueprints automatically prevent duplicates. `find(name)` checks the in-memory c
 When a block is passed to a blueprint method, `update_state_for_block` saves the current context, sets the new record as `current.resource`, executes the block, then restores the previous context. Child blueprints read their parent from `current`:
 
 ```ruby
-class UserBlueprint < Armature::Blueprint
+class UserBlueprint < Foundries::Blueprint
   handles :user
   parent :team         # reads current.team
   parent_key :team_id  # sets team_id on created records
@@ -90,12 +90,12 @@ class UserBlueprint < Armature::Blueprint
 end
 ```
 
-### Base (the armature)
+### Base (the foundry)
 
 Register blueprints and optional extra collections:
 
 ```ruby
-class TestArmature < Armature::Base
+class TestFoundry < Foundries::Base
   blueprint TeamBlueprint
   blueprint UserBlueprint
   blueprint ProjectBlueprint
@@ -114,10 +114,10 @@ The base class:
 
 ### Presets
 
-Presets are named class methods that build a preconfigured armature:
+Presets are named class methods that build a preconfigured foundry:
 
 ```ruby
-class TestArmature < Armature::Base
+class TestFoundry < Foundries::Base
   # ...
 
   preset :dev_team do
@@ -131,15 +131,15 @@ class TestArmature < Armature::Base
 end
 
 # In a test:
-let(:foundry) { TestArmature.dev_team }
+let(:foundry) { TestFoundry.dev_team }
 ```
 
 ### Reopening
 
-Add more records to an existing armature:
+Add more records to an existing foundry:
 
 ```ruby
-foundry = TestArmature.dev_team
+foundry = TestFoundry.dev_team
 foundry.reopen do
   team "Design" do
     user "Carol"
@@ -152,7 +152,7 @@ end
 Start from records already in the database:
 
 ```ruby
-foundry = TestArmature.new
+foundry = TestFoundry.new
 foundry.from(existing_team) do
   user "New hire"
 end
@@ -163,7 +163,7 @@ end
 Override `setup` and `teardown` in your base subclass for pre/post processing:
 
 ```ruby
-class TestArmature < Armature::Base
+class TestFoundry < Foundries::Base
   private
 
   def setup
@@ -178,22 +178,22 @@ end
 
 ## Snapshot Caching
 
-When using ActiveRecord, Armature can snapshot preset data to disk and restore it instead of re-running factories. This is useful for speeding up test suites where the same preset is called many times.
+When using ActiveRecord, Foundries can snapshot preset data to disk and restore it instead of re-running factories. This is useful for speeding up test suites where the same preset is called many times.
 
 Enable with an environment variable:
 
 ```
-ARMATURE_CACHE=1 bundle exec rspec
+FOUNDRIES_CACHE=1 bundle exec rspec
 ```
 
 Or configure directly:
 
 ```ruby
-Armature::Snapshot.enabled = true
-Armature::Snapshot.storage_path = "tmp/armature"  # default
-Armature::Snapshot.source_paths = [
+Foundries::Snapshot.enabled = true
+Foundries::Snapshot.storage_path = "tmp/foundries"  # default
+Foundries::Snapshot.source_paths = [
   "lib/blueprints/**/*.rb",
-  "lib/test_armature.rb"
+  "lib/test_foundry.rb"
 ]
 ```
 
@@ -201,25 +201,25 @@ Snapshots are invalidated automatically when the schema version changes or when 
 
 ## Similarity Detection
 
-Armature can detect when presets have overlapping structure, highlighting consolidation opportunities. When enabled, it records the normalized blueprint call tree of each preset and compares against previously seen presets.
+Foundries can detect when presets have overlapping structure, highlighting consolidation opportunities. When enabled, it records the normalized blueprint call tree of each preset and compares against previously seen presets.
 
 Enable with an environment variable:
 
 ```
-ARMATURE_SIMILARITY=1 bundle exec rspec
+FOUNDRIES_SIMILARITY=1 bundle exec rspec
 ```
 
 Or configure directly:
 
 ```ruby
-Armature::Similarity.enabled = true
+Foundries::Similarity.enabled = true
 ```
 
 When two presets share identical structure or one is structurally contained within another, a warning is printed to stderr:
 
 ```
-[Armature] Preset :basic and :extended have identical structure (team > [project > [task], user])
-[Armature] Preset :simple is structurally contained within :complex
+[Foundries] Preset :basic and :extended have identical structure (team > [project > [task], user])
+[Foundries] Preset :simple is structurally contained within :complex
 ```
 
 Each unique pair is warned once per process. The detection normalizes trees by deduplicating sibling nodes (keeping the richest subtree), collapsing pass-through chains, and sorting alphabetically. This means presets that build the same *shape* of data are detected regardless of the specific names or attribute values used.
@@ -246,4 +246,4 @@ Releases are automated via the [shared release workflow](https://github.com/SOFw
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/SOFware/armature.
+Bug reports and pull requests are welcome on GitHub at https://github.com/SOFware/foundries.
