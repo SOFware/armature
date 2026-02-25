@@ -2,5 +2,5 @@
 
 module Foundries
   VERSION = "0.1.0"
-  RELEASE_DATE = "Unreleased"
+  RELEASE_DATE = "2026-02-25"
 end
