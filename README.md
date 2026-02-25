@@ -226,10 +226,24 @@ Each unique pair is warned once per process. The detection normalizes trees by d
 
 ## Requirements
 
-- Ruby >= 3.2
+- Ruby >= 4.0
 - factory_bot >= 6.0
 - ActiveRecord (optional, for snapshot caching)
 
 ## License
 
 MIT
+
+## Development
+
+After checking out the repo, run `bundle install` to install dependencies. Then, run `bundle exec rake` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run bundle exec rake install.
+
+This project is managed with [Reissue](https://github.com/SOFware/reissue).
+
+Releases are automated via the [shared release workflow](https://github.com/SOFware/reissue/blob/main/.github/workflows/SHARED_WORKFLOW_README.md). Trigger a release by running the "Release gem to RubyGems.org" workflow from the Actions tab.
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/SOFware/armature.
